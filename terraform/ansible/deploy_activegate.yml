@@ -1,0 +1,29 @@
+---
+- name: Install Dynatrace ActiveGate
+  hosts: activegate
+  become: yes
+
+  vars:
+    dynatrace_tenant: "<YOUR_TENANT_ID>.live.dynatrace.com"
+    dynatrace_installer_token: "<YOUR_INSTALLER_TOKEN>"
+
+  tasks:
+
+    - name: Install required dependencies
+      yum:
+        name:
+          - wget
+          - unzip
+        state: present
+
+    - name: Download Dynatrace ActiveGate installer
+      get_url:
+        url: "https://{{ dynatrace_tenant }}/api/v1/deployment/installer/agent/unix/activegate/latest?Api-Token={{ dynatrace_installer_token }}"
+        dest: /tmp/ActiveGate.sh
+        mode: '0755'
+
+    - name: Run ActiveGate installer
+      shell: |
+        sh /tmp/ActiveGate.sh
+      args:
+        chdir: /tmp
